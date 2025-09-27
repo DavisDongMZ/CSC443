@@ -146,19 +146,19 @@ bool AVLTree::search(const AVLNode* root, const string& key) {
     return search(root->right, key);
 }
 
-void AVLTree::insert(string key, string value) {
+void AVLTree::insert(const string& key,const string& value) {
     root = insert(root, key, value);
 }
 
-void AVLTree::remove(string key) {
+void AVLTree::remove(const string& key) {
     root = deleteNode(root, key);
 }
 
-bool AVLTree::search(string key) {
+bool AVLTree::search(const string& key) {
     return search(root, key);
 }
 
-string AVLTree::inorder() {
+string AVLTree::inorder() const {
     return inorder(root);
 }
 

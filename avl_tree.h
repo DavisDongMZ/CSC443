@@ -41,18 +41,17 @@ class AVLTree {
 
     static AVLNode* deleteNode(AVLNode* node, const string& key);
 
-    bool search(const AVLNode *root, const string &key);
+    bool search(const AVLNode *root, const string& key);
 
     static string inorder(AVLNode* root);
 public:
     AVLTree()
         : root(nullptr) {}
     // ~AVLTree();
-    void insert(string key, string value);
-    void remove(string key);
-    bool search(string key);
-    bool search(AVLNode* root, string key);
-    string inorder();
+    void insert(const string& key, const string& value);
+    void remove(const string& key);
+    bool search(const string& key);
+    string inorder() const;
 };
 
 
