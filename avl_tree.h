@@ -29,6 +29,8 @@ public:
 
 class AVLTree {
     AVLNode* root;
+    int size;
+    int max_size;
     static int height(const AVLNode* node);
     static int balanceFactor(const AVLNode* node);
 
@@ -36,22 +38,29 @@ class AVLTree {
 
     static AVLNode* leftRotate(AVLNode* x);
 
-    static AVLNode* insert(AVLNode* node, const string& key, const string& value);
+    static pair<AVLNode*, bool> insert(AVLNode* node, const string& key, const string& value);
     static AVLNode* minValueNode(AVLNode* node);
 
-    static AVLNode* deleteNode(AVLNode* node, const string& key);
+    static pair<AVLNode*, bool> deleteNode(AVLNode* node, const string& key);
 
     static bool search(const AVLNode *root, const string& key);
 
     static string inorder(AVLNode* root);
 public:
     AVLTree()
-        : root(nullptr) {}
+        : root(nullptr)
+        , size(0)
+        , max_size(numeric_limits<int>::max()) {}
+    explicit AVLTree(const int max)
+        : root(nullptr)
+        , size(0)
+        , max_size(max){}
     // ~AVLTree();
-    void insert(const string& key, const string& value);
+    bool insert(const string& key, const string& value);
     void remove(const string& key);
-    bool search(const string& key) const;
-    string inorder() const;
+    [[nodiscard]] bool search(const string& key) const;
+    [[nodiscard]] string inorder() const;
+    [[nodiscard]] int get_size() const;
 };
 
 

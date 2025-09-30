@@ -44,36 +44,47 @@ AVLNode* AVLTree::leftRotate(AVLNode* x) {
     return y;
 }
 
-AVLNode* AVLTree::insert(AVLNode* node, const string& key, const string& value) {
-    if (node == nullptr) return new AVLNode(key, value);
+pair<AVLNode*, bool> AVLTree::insert(AVLNode* node, const string& key, const string& value) {
+    if (node == nullptr) {
+        // didn't put this inside the initialization of the pair because linter detects this as a memory leak
+        auto new_leaf = new AVLNode(key, value);
+        return {new_leaf, true};
+    }
 
-    if (key < node->key)
-        node->left = insert(node->left, key, value);
-    else if (key > node->key)
-        node->right = insert(node->right, key, value);
+    bool insertion_outcome;
+    if (key < node->key) {
+        auto res = insert(node->left, key, value);
+        node->left = res.first;
+        insertion_outcome = res.second;
+    }
+    else if (key > node->key) {
+        auto res = insert(node->right, key, value);
+        node->right = res.first;
+        insertion_outcome = res.second;
+    }
     else {
         // overwrite key value pair with new value
         node->value = value;
-        return node;
+        return {node, false};
     }
 
     // node inserted as child, need to update height and perform rotations
     node->height = 1 + max(height(node->left), height(node->right));
     int balance = balanceFactor(node);
     if (balance > 1 && key < node->left->key)
-        return rightRotate(node);
+        return {rightRotate(node), insertion_outcome};
     if (balance < -1 && key > node->right->key)
-        return leftRotate(node);
+        return {leftRotate(node), insertion_outcome};
     if (balance > 1 && key > node->left->key) {
         node->left = leftRotate(node->left);
-        return rightRotate(node);
+        return {rightRotate(node), insertion_outcome};
     }
     if (balance <-1 && key < node->right->key) {
         node->right = rightRotate(node->right);
-        return leftRotate(node);
+        return {leftRotate(node), insertion_outcome};
     }
 
-    return node;
+    return {node, insertion_outcome};
 }
 
 AVLNode* AVLTree::minValueNode(AVLNode* node) {
@@ -83,33 +94,46 @@ AVLNode* AVLTree::minValueNode(AVLNode* node) {
     return current;
 }
 
-AVLNode* AVLTree::deleteNode(AVLNode* root, const string& key) {
-    if (root == nullptr) return nullptr;
+pair<AVLNode*, bool> AVLTree::deleteNode(AVLNode* root, const string& key) {
+    if (root == nullptr) return {nullptr, false};
 
-    if (key < root->key)
-        root->left = deleteNode(root->left, key);
-    else if (key > root->key)
-        root->right = deleteNode(root->right, key);
+    bool deletion_outcome;
+    if (key < root->key) {
+        auto res = deleteNode(root->left, key);
+        root->left = res.first;
+        deletion_outcome = res.second;
+    }
+    else if (key > root->key) {
+        auto res = deleteNode(root->right, key);
+        root->right = res.first;
+        deletion_outcome = res.second;
+    }
     else {
         // 1 or 0 child
-        if ((root->left == nullptr) || (root->right == nullptr)) {
+        if (root->left == nullptr || root->right == nullptr) {
             const AVLNode* temp = root->left ? root->left : root->right;
             if (temp == nullptr) {
                 temp = root;
                 root = nullptr;
+                deletion_outcome = true;
             }
             else
                 *root = *temp;
+                deletion_outcome = true;
             delete temp;
         } else {
             const AVLNode* temp = minValueNode(root->right);
             root->key = temp->key;
             root->value = temp->value;
-            root->right = deleteNode(root->right, temp->key);
+            deletion_outcome = true;
+            // root deleted, now remove copy from right node
+            auto res = deleteNode(root->right, temp->key);
+            root->right = res.first;
+            // we don't need the deletion outcome from this action since we've already performed a deletion
         }
     }
 
-    if (root == nullptr) return root;
+    if (root == nullptr) return {root, deletion_outcome};
 
     root->height = 1 + max(height(root->left), height(root->right));
 
@@ -117,18 +141,18 @@ AVLNode* AVLTree::deleteNode(AVLNode* root, const string& key) {
 
     if (balance > 1 && balanceFactor(root->left) < 0) {
         root->left = leftRotate(root->left);
-        return rightRotate(root);
+        return {rightRotate(root), deletion_outcome};
     }
 
     if (balance < -1 && balanceFactor(root->right) <= 0)
-        return leftRotate(root);
+        return {leftRotate(root), deletion_outcome};
 
     if (balance < -1 && balanceFactor(root->right) > 0) {
         root->right = rightRotate(root->right);
-        return leftRotate(root);
+        return {leftRotate(root), deletion_outcome};
     }
 
-    return root;
+    return {root, deletion_outcome};
 }
 
 string AVLTree::inorder(AVLNode* root) {
@@ -147,12 +171,20 @@ bool AVLTree::search(const AVLNode* root, const string& key) {
     return search(root->right, key);
 }
 
-void AVLTree::insert(const string& key,const string& value) {
-    root = insert(root, key, value);
+bool AVLTree::insert(const string& key,const string& value) {
+    if (size == max_size) return false;
+    auto res = insert(root, key, value);
+    root = res.first;
+    if (res.second == true) {
+        size++;
+    }
+    return true;
 }
 
 void AVLTree::remove(const string& key) {
-    root = deleteNode(root, key);
+    auto res = deleteNode(root, key);
+    root = res.first;
+    if (size > 0 && res.second) size--;
 }
 
 bool AVLTree::search(const string& key) const {
@@ -163,4 +195,6 @@ string AVLTree::inorder() const {
     return inorder(root);
 }
 
-
+int AVLTree::get_size() const {
+    return size;
+}
