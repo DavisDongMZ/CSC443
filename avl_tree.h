@@ -63,5 +63,4 @@ public:
     [[nodiscard]] int get_size() const;
 };
 
-
 #endif //KVDATABASE_AVL_TREE_H
