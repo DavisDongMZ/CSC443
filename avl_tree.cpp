@@ -88,12 +88,12 @@ AVLNode* AVLTree::deleteNode(AVLNode* root, const string& key) {
 
     if (key < root->key)
         root->left = deleteNode(root->left, key);
-    else if (key < root->key)
+    else if (key > root->key)
         root->right = deleteNode(root->right, key);
     else {
         // 1 or 0 child
         if ((root->left == nullptr) || (root->right == nullptr)) {
-            AVLNode* temp = root->left ? root->left : root->right;
+            const AVLNode* temp = root->left ? root->left : root->right;
             if (temp == nullptr) {
                 temp = root;
                 root = nullptr;
@@ -102,8 +102,9 @@ AVLNode* AVLTree::deleteNode(AVLNode* root, const string& key) {
                 *root = *temp;
             delete temp;
         } else {
-            AVLNode* temp = minValueNode(root->right);
+            const AVLNode* temp = minValueNode(root->right);
             root->key = temp->key;
+            root->value = temp->value;
             root->right = deleteNode(root->right, temp->key);
         }
     }
@@ -154,7 +155,7 @@ void AVLTree::remove(const string& key) {
     root = deleteNode(root, key);
 }
 
-bool AVLTree::search(const string& key) {
+bool AVLTree::search(const string& key) const {
     return search(root, key);
 }
 
