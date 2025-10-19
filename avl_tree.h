@@ -9,6 +9,8 @@
 #include <string>
 #include <algorithm>
 #include <utility>
+#include <limits>
+
 using namespace std;
 
 class AVLNode {
