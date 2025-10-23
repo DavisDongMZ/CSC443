@@ -47,7 +47,7 @@ public:
     // Returns true if found, false if not.
     bool get(const std::string& key, std::string& value_out) const;
 
-    // Perform a range scan between 'start' and 'end' (inclusive or exclusive depending on implementation).
+    // Perform a range scan between 'start' and 'end'.
     // For each key-value pair, call the 'visit' function.
     void scan(const std::string& start, const std::string& end,
               const std::function<void(const std::string&, const std::string&)>& visit) const;
